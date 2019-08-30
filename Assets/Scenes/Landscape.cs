@@ -2,8 +2,14 @@
 
 public class Landscape : MonoBehaviour {
 
-    public int xLength;
-    public int zLength;
+    public int numDivisions;
+    
+    // The size of the landscape in the x and z direction.
+    public float size;
+    public float height;
+
+    Vector3[] vertices;
+
 
     void Start() {
         MeshFilter landMesh = this.gameObject.AddComponent<MeshFilter>();
@@ -21,44 +27,51 @@ public class Landscape : MonoBehaviour {
         Mesh land = new Mesh();
         land.name = "Landscape";
 
-        int numOfVerticies = xLength * zLength * 2 * 3;
-        Vector3[] verticies = new Vector3[numOfVerticies];
-        Color[] colors = new Color[numOfVerticies];
+        int numOfVerts = (numDivisions + 1) * (numDivisions + 1);
+        this.vertices = new Vector3[numOfVerts];
+        int[] triangles = new int[numDivisions * numDivisions * 6];
 
-        int count = 0;
-        for (int x = 0; x < xLength; x++) {
-            for (int z = 0; z < zLength; z++) {
-                verticies[count] = new Vector3((float) x, 0, (float) z);
-                verticies[count + 1] = new Vector3((float) x, 0, (float) z + 1);
-                verticies[count + 2] = new Vector3((float) x + 1, 0, (float) z);
+        float divisionSize = size / numDivisions;
+        float halfSize = size * 0.5f;
 
-                verticies[count + 3] = new Vector3((float) x + 1, 0, (float) z + 1); 
-                verticies[count + 4] = new Vector3((float) x + 1, 0, (float) z); 
-                verticies[count + 5] = new Vector3((float) x, 0, (float) z + 1);
+        int triOffset = 0;
 
-                colors[count] = Color.yellow; 
-                colors[count + 1] = Color.yellow; 
-                colors[count + 2] = Color.yellow; 
+        // Generate all the verticies for the landscape
+        for (int z= 0; z <= numDivisions; z++) {
+            for (int x = 0; x <= numDivisions; x++) {
+                vertices[z * (numDivisions + 1) + x] = new Vector3(-halfSize + x * divisionSize, 0.0f, halfSize - z * divisionSize);
+                
+                // Generate the triangles for the corresponding vertex
+                if (x < numDivisions && z < numDivisions) {
 
-                colors[count + 3] = Color.yellow; 
-                colors[count + 4] = Color.yellow; 
-                colors[count + 5] = Color.yellow; 
+                    // The index of the verticies for a triangle
+                    int topLeft = z * (numDivisions + 1) + x;
+                    int botLeft = (z + 1) * (numDivisions + 1) + x;
 
-                count += 6;
+                    triangles[triOffset] = topLeft;
+                    triangles[triOffset + 1] = topLeft + 1;
+                    triangles[triOffset + 2] = botLeft + 1;
+
+                    triangles[triOffset + 3] = topLeft;
+                    triangles[triOffset + 4] = botLeft + 1;
+                    triangles[triOffset + 5] = botLeft;
+
+                    triOffset += 6;
+                }
             }
         }
 
-        land.vertices = verticies;
-        land.colors = colors;
-
-        int[] triangles = new int[land.vertices.Length];
-        for (int i = 0; i < land.vertices.Length; i++) {
-            triangles[i] = i;
+        Color[] colors = new Color[numOfVerts];
+        for (int i = 0; i < numOfVerts; i++) {
+            colors[i] = Color.yellow;
         }
 
+        land.vertices = vertices;
         land.triangles = triangles;
+        land.colors = colors;
 
         return land;
     }
 
 }
+
