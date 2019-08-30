@@ -1,1 +1,6 @@
 Temp
+.vscode
+Library
+obj/debug
+Assembly-CSharp.csproj
+Project_Landscape.sln
