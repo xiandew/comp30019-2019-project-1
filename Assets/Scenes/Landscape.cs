@@ -11,16 +11,25 @@ public class Landscape : MonoBehaviour {
     Vector3[] vertices;
     int numOfVerts;
 
+    public Shader shader;
+    public Sun sun;
 
     void Start() {
         MeshFilter landMesh = this.gameObject.AddComponent<MeshFilter>();
         landMesh.mesh = this.CreateLand();
 
-        // MeshRenderer landRender = this.gameObject.AddComponent<MeshRenderer>();
-        // landRender.material.shader = Shader.Find("Unlit/LandscapeShader");
+        MeshRenderer renderer = this.gameObject.AddComponent<MeshRenderer>();
+        renderer.material.shader = shader;
     }
 
     void Update() {
+
+        // Get renderer component (in order to pass params to shader)
+        MeshRenderer renderer = this.gameObject.GetComponent<MeshRenderer>();
+
+        // Pass updated light positions to shader
+        renderer.material.SetColor("_SunLightColor", this.sun.color);
+        renderer.material.SetVector("_SunLightPosition", this.sun.GetWorldPosition());
 
     }
 
@@ -109,6 +118,12 @@ public class Landscape : MonoBehaviour {
 
         land.RecalculateBounds();
         land.RecalculateNormals();
+
+        Color[] color = new Color[numOfVerts];
+        for (int i = 0; i < numOfVerts; i++){
+            color[i] = Color.gray;
+        }
+        land.colors = color;
 
         return land;
     }

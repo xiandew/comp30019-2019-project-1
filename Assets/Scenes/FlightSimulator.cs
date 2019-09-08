@@ -38,6 +38,14 @@ public class FlightSimulator : MonoBehaviour
             dz += 1.0f;
         if (Input.GetKey(KeyCode.S))
             dz -= 1.0f;
+        
         this.transform.position += this.transform.rotation * new Vector3(dx, 0.0f, dz) * Time.deltaTime;
     }
+
+    //  void OnCollisionEnter(Collision ctl)
+    // {
+    //     ContactPoint contact = ctl.contacts[0];
+    //     Quaternion rot = Quaternion.FromToRotation(Vector3.up, contact.normal);
+    //     Vector3 pos = contact.point;
+    // }
 }
