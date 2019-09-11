@@ -6,6 +6,8 @@ public class FlightSimulator : MonoBehaviour
 {
     public Landscape landscape;
     public bool orthographic = false;
+    public float speed;
+    public float sensitivity;
 
     private Vector3 pivot;
     private float yaw = 0.0f;
@@ -24,20 +26,20 @@ public class FlightSimulator : MonoBehaviour
     // Update is called once per frame
     void Update() {
         // Orientation
-        yaw -= Input.GetAxis("Mouse X");
-        pitch += Input.GetAxis("Mouse Y");
+        yaw -= sensitivity * Input.GetAxis("Mouse X");
+        pitch += sensitivity * Input.GetAxis("Mouse Y");
         this.transform.rotation = Quaternion.LookRotation(new Vector3(yaw, pitch, 0.0f) - pivot, Vector3.up);
 
         // Movement relative to the orientation
         float dx = 0.0f, dz = 0.0f;
         if (Input.GetKey(KeyCode.D))
-            dx += 1.0f;
+            dx += speed;
         if (Input.GetKey(KeyCode.A))
-            dx -= 1.0f;
+            dx -= speed;
         if (Input.GetKey(KeyCode.W))
-            dz += 1.0f;
+            dz += speed;
         if (Input.GetKey(KeyCode.S))
-            dz -= 1.0f;
+            dz -= speed;
         
         this.transform.position += this.transform.rotation * new Vector3(dx, 0.0f, dz) * Time.deltaTime;
     }
