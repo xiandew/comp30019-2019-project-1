@@ -7,7 +7,6 @@ public class Landscape : MonoBehaviour {
     // The size of the landscape in the x and z direction.
     public float size;
     public float height;
-    public Mesh land;
 
     Vector3[] vertices;
     int numOfVerts;

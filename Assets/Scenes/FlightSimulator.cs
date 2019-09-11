@@ -12,15 +12,18 @@ public class FlightSimulator : MonoBehaviour
     private Vector3 pivot;
     private float yaw = 0.0f;
     private float pitch = 0.0f;
+    private Rigidbody rb;
+    private Vector3 landBounds;
 
     // Start is called before the first frame update
     void Start() {
-        Vector3 meshBounds = new Vector3(landscape.size, landscape.height, landscape.size);
+        landBounds = new Vector3(landscape.size, landscape.height, landscape.size);
         MeshFilter landMesh = landscape.GetComponent<MeshFilter>();
         if (landMesh) {
-            meshBounds = landMesh.mesh.bounds.size;
+            landBounds = landMesh.mesh.bounds.size;
         }
-        this.transform.position = pivot = new Vector3(meshBounds.x / 2, meshBounds.y, meshBounds.z / 2);
+        rb = this.gameObject.GetComponent<Rigidbody>();
+        rb.position = pivot = new Vector3(landBounds.x / 2, landBounds.y, landBounds.z / 2);
     }
 
     // Update is called once per frame
@@ -29,6 +32,14 @@ public class FlightSimulator : MonoBehaviour
         yaw -= sensitivity * Input.GetAxis("Mouse X");
         pitch += sensitivity * Input.GetAxis("Mouse Y");
         this.transform.rotation = Quaternion.LookRotation(new Vector3(yaw, pitch, 0.0f) - pivot, Vector3.up);
+
+        // Prevent tunneling
+        RaycastHit hit;
+        Vector3 p1 = transform.position + landscape.GetComponent<MeshFilter>().mesh.bounds.center;
+        if (Physics.SphereCast(p1, landBounds.y / 2, transform.forward, out hit, 5))
+        {
+            speed = 10.0f;
+        }
 
         // Movement relative to the orientation
         float dx = 0.0f, dz = 0.0f;
@@ -40,14 +51,7 @@ public class FlightSimulator : MonoBehaviour
             dz += speed;
         if (Input.GetKey(KeyCode.S))
             dz -= speed;
-        
-        this.transform.position += this.transform.rotation * new Vector3(dx, 0.0f, dz) * Time.deltaTime;
-    }
 
-    //  void OnCollisionEnter(Collision ctl)
-    // {
-    //     ContactPoint contact = ctl.contacts[0];
-    //     Quaternion rot = Quaternion.FromToRotation(Vector3.up, contact.normal);
-    //     Vector3 pos = contact.point;
-    // }
+        rb.MovePosition(this.transform.position + this.transform.rotation * new Vector3(dx, 0.0f, dz) * Time.deltaTime);
+    }
 }
