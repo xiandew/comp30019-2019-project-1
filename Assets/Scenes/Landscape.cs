@@ -7,6 +7,7 @@ public class Landscape : MonoBehaviour {
     // The size of the landscape in the x and z direction.
     public float size;
     public float height;
+    public Mesh land;
 
     Vector3[] vertices;
     int numOfVerts;
@@ -17,6 +18,9 @@ public class Landscape : MonoBehaviour {
     void Start() {
         MeshFilter landMesh = this.gameObject.AddComponent<MeshFilter>();
         landMesh.mesh = this.CreateLand();
+        
+        MeshCollider collider = this.gameObject.AddComponent<MeshCollider>();
+        collider.sharedMesh = landMesh.mesh;
 
         MeshRenderer renderer = this.gameObject.AddComponent<MeshRenderer>();
         renderer.material.shader = shader;
@@ -44,6 +48,7 @@ public class Landscape : MonoBehaviour {
 
         float divisionSize = size / numDivisions;
         float halfSize = size * 0.5f;
+        float offset = this.height;
 
         int triOffset = 0;
 
@@ -74,10 +79,10 @@ public class Landscape : MonoBehaviour {
         }
 
         // Set the initial values of the four corners.
-        vertices[0].y = Random.Range(-height, height);
-        vertices[numDivisions].y = Random.Range(-height, height);
-        vertices[vertices.Length - 1].y = Random.Range(-height, height);
-        vertices[vertices.Length - 1 - numDivisions].y = Random.Range(-height, height);
+        vertices[0].y = Random.Range(-offset, offset);
+        vertices[numDivisions].y = Random.Range(-offset, offset);
+        vertices[vertices.Length - 1].y = Random.Range(-offset, offset);
+        vertices[vertices.Length - 1 - numDivisions].y = Random.Range(-offset, offset);
 
         // The number of iterations where the diamond and square step is going
         // to be performed.
@@ -99,7 +104,7 @@ public class Landscape : MonoBehaviour {
                 // Iterate through the squares within the same row.
                 for (int k = 0; k < numSquares; k++) {
 
-                    DiamondSquare(row, col, squareSize, height);
+                    DiamondSquare(row, col, squareSize, offset);
                     col += squareSize;
 
                 }
@@ -110,7 +115,7 @@ public class Landscape : MonoBehaviour {
 
             numSquares *= 2;
             squareSize /= 2;
-            height *= 0.5f;
+            offset *= 0.5f;
         }
         land.vertices = vertices;
         land.uv = uvs;
@@ -120,8 +125,24 @@ public class Landscape : MonoBehaviour {
         land.RecalculateNormals();
 
         Color[] color = new Color[numOfVerts];
+        Color snow = new Color(206.0f / 255.0f, 211.0f / 255.0f, 217.0f / 255.0f);
+        Color grass = new Color(126.0f / 255.0f, 200.0f / 255.0f, 80.0f /255.0f);
+        Color sand = new Color(200.0f / 255.0f, 172.0f / 255.0f, 133.0f /255.0f);
+
+        float snowHeight = height / 2;
+        float grassHeight = height / 5;
+
         for (int i = 0; i < numOfVerts; i++){
-            color[i] = Color.gray;
+            float vHeight = vertices[i].y;
+            if (vHeight >= snowHeight) {
+                color[i] = snow;
+            } 
+            else if (vHeight < snowHeight && vHeight >= grassHeight) {
+                color[i] = grass;
+            }
+            else {                
+                color[i] = sand;
+            }
         }
         land.colors = color;
 
