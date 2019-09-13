@@ -13,17 +13,16 @@ public class FlightSimulator : MonoBehaviour
     private float yaw = 0.0f;
     private float pitch = 0.0f;
     private Rigidbody rb;
-    private Vector3 landBounds;
+    private Bounds landBounds;
 
     // Start is called before the first frame update
     void Start() {
-        landBounds = new Vector3(landscape.size, landscape.height, landscape.size);
         MeshFilter landMesh = landscape.GetComponent<MeshFilter>();
         if (landMesh) {
-            landBounds = landMesh.mesh.bounds.size;
+            landBounds = landMesh.mesh.bounds;
         }
         rb = this.gameObject.GetComponent<Rigidbody>();
-        rb.position = pivot = new Vector3(landBounds.x / 2, landBounds.y, landBounds.z / 2);
+        rb.position = pivot = normalise(landBounds.extents.x, landBounds.size.y, landBounds.extents.z);
     }
 
     // Update is called once per frame
@@ -35,10 +34,9 @@ public class FlightSimulator : MonoBehaviour
 
         // Prevent tunneling
         RaycastHit hit;
-        Vector3 p1 = transform.position + landscape.GetComponent<MeshFilter>().mesh.bounds.center;
-        if (Physics.SphereCast(p1, landBounds.y / 2, transform.forward, out hit, 5))
-        {
-            speed = 10.0f;
+        Vector3 p1 = transform.position + landBounds.center;
+        if (Physics.SphereCast(p1, landBounds.size.y / 2, transform.forward, out hit, 10)) {
+            speed = 8.0f;
         }
 
         // Movement relative to the orientation
@@ -52,6 +50,15 @@ public class FlightSimulator : MonoBehaviour
         if (Input.GetKey(KeyCode.S))
             dz -= speed;
 
-        rb.MovePosition(this.transform.position + this.transform.rotation * new Vector3(dx, 0.0f, dz) * Time.deltaTime);
+        Vector3 p = this.transform.position + this.transform.rotation * new Vector3(dx, 0.0f, dz) * Time.deltaTime;
+        rb.MovePosition(normalise(p.x, p.y, p.z));
+    }
+
+    // Set camera boundary
+    Vector3 normalise(float x, float y, float z) {
+        return new Vector3(
+            Mathf.Clamp(x, landBounds.min.x + 2, landBounds.max.x - 2),
+            Mathf.Clamp(y, landBounds.min.y, landBounds.max.y * 2),
+            Mathf.Clamp(z, landBounds.min.z + 2, landBounds.max.z - 2));
     }
 }
