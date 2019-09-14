@@ -1,5 +1,7 @@
 ﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
 
+// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
 Shader "Unlit/WaterShader"
 {
     Properties
@@ -43,6 +45,12 @@ Shader "Unlit/WaterShader"
 			vertOut vert(vertIn v)
 			{
 				vertOut o;
+
+				// Displacement of the water
+				float speed = 2.0f;
+				float amp = 0.5f;			
+				float4 displacement = float4(0.0f, sin(v.vertex.x + _Time.y * speed) * amp, 0.0f, 0.0f);
+				v.vertex += displacement;
 
 				// Convert Vertex position and corresponding normal into world coords.
 				// Note that we have to multiply the normal by the transposed inverse of the world 
