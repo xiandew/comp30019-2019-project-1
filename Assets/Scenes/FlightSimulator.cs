@@ -9,9 +9,8 @@ public class FlightSimulator : MonoBehaviour
     public float speed;
     public float sensitivity;
 
-    private Vector3 pivot;
-    private float yaw = 0.0f;
-    private float pitch = 0.0f;
+    private float yaw = 45.0f;
+    private float pitch = 30.0f;
     private Rigidbody rb;
     private Bounds landBounds;
 
@@ -22,15 +21,31 @@ public class FlightSimulator : MonoBehaviour
             landBounds = landMesh.mesh.bounds;
         }
         rb = this.gameObject.GetComponent<Rigidbody>();
-        rb.position = pivot = normalise(landBounds.extents.x, landBounds.size.y, landBounds.extents.z);
+        rb.position = normalise(-landBounds.extents.x, landBounds.size.y, -landBounds.extents.z);
+
+        // Initial orientation
+        this.transform.eulerAngles = new Vector3(pitch, yaw, 0.0f);
     }
 
     // Update is called once per frame
     void Update() {
-        // Orientation
-        yaw -= sensitivity * Input.GetAxis("Mouse X");
-        pitch += sensitivity * Input.GetAxis("Mouse Y");
-        this.transform.rotation = Quaternion.LookRotation(new Vector3(yaw, pitch, 0.0f) - pivot, Vector3.up);
+        // Ref: http://forum.unity3d.com/threads/how-to-lock-or-set-the-cameras-z-rotation-to-zero.68932/#post-441968
+        // Update orientation
+        yaw += sensitivity * Input.GetAxis("Mouse X");
+        pitch -= sensitivity * Input.GetAxis("Mouse Y");
+
+        // Clamp pitch:
+        pitch = Mathf.Clamp(pitch, -90.0f, 90.0f);
+
+        // Wrap yaw:
+        while (yaw < 0.0f) {
+            yaw += 360.0f;
+        }
+        while (yaw >= 360.0f) {
+            yaw -= 360.0f;
+        }
+
+        this.transform.eulerAngles = new Vector3(pitch, yaw, 0.0f);
 
         // Prevent tunneling
         RaycastHit hit;
