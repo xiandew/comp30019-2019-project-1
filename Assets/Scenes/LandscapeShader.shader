@@ -102,8 +102,8 @@ Shader "Unlit/LandscapeShader"
 				float3 dif = fAtt * _SunLightColor.rgb * Kd * v.color.rgb * saturate(LdotN);
 
 				// Calculate specular reflections
-				float Ks = 1;
-				float specN = 15; // Values>>1 give tighter highlights
+				float Ks = 0.3;
+				float specN = 1; // Values>>1 give tighter highlights
 				float3 V = normalize(_WorldSpaceCameraPos - v.worldVertex.xyz);
 				// Using classic reflection calculation:
 				float3 R = normalize((2.0 * LdotN * interpNormal) - L);

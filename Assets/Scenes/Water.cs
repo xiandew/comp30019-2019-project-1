@@ -23,6 +23,9 @@ public class Water : MonoBehaviour
         MeshFilter waterMesh = this.gameObject.AddComponent<MeshFilter>();
         waterMesh.mesh = this.CreateWater();
 
+        MeshCollider collider = this.gameObject.AddComponent<MeshCollider>();
+        collider.sharedMesh = waterMesh.mesh;
+
         MeshRenderer renderer = this.gameObject.AddComponent<MeshRenderer>();
         renderer.material.shader = shader;       
     }
@@ -79,7 +82,7 @@ public class Water : MonoBehaviour
         }
 
         Color[] color = new Color[numOfVerts];
-        Color sea = new Color(28.0f / 255.0f, 112.0f / 255.0f, 200.0f / 255.0f);
+        Color sea = new Color(28.0f / 255.0f, 112.0f / 255.0f, 200.0f / 255.0f, 0.9f);
 
         for (int i = 0; i < numOfVerts; i++){
             color[i] = sea;
