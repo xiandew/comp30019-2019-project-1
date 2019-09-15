@@ -11,12 +11,16 @@ public class Landscape : MonoBehaviour {
     // The size of the landscape in the x and z direction.
     public float size;
     public float height;
+    public Shader shader;
+    public Sun sun;
 
     Vector3[] vertices;
     int numOfVerts;
+    private float snowHeight;
+    private float grassHeight;
 
-    public Shader shader;
-    public Sun sun;
+    [HideInInspector]
+    public float waterLevel;    
 
     void Start() {
         MeshFilter landMesh = this.gameObject.AddComponent<MeshFilter>();
@@ -132,8 +136,7 @@ public class Landscape : MonoBehaviour {
         Color grass = new Color(126.0f / 255.0f, 200.0f / 255.0f, 80.0f /255.0f);
         Color sand = new Color(200.0f / 255.0f, 172.0f / 255.0f, 133.0f /255.0f);
 
-        float snowHeight = height / 2;
-        float grassHeight = height / 5;
+        this.setHeights();
 
         for (int i = 0; i < numOfVerts; i++){
             float vHeight = vertices[i].y;
@@ -172,6 +175,24 @@ public class Landscape : MonoBehaviour {
                                       vertices[mid].y) / 3 + Random.Range(-offset, offset);
         vertices[botLeft + halfSize].y = (vertices[botLeft].y + vertices[botLeft + squareSize].y + 
                                           vertices[mid].y) / 3 + Random.Range(-offset, offset);
+    }
+
+    void setHeights() {
+        float maxHeight = 0.0f;
+        float minHeight = 0.0f;
+
+        for (int i = 0; i < numOfVerts; i++) {
+            float vHeight = vertices[i].y;
+            if (vHeight > maxHeight) {
+                maxHeight = vHeight;
+            } else if (vHeight < minHeight) {
+                minHeight = vHeight;
+            }
+        }
+
+        snowHeight  = minHeight + (maxHeight - minHeight) * 0.8f;
+        grassHeight = minHeight + (maxHeight - minHeight) * 0.6f;
+        waterLevel  = minHeight + (maxHeight - minHeight) * 0.5f;
     }
 
 }
