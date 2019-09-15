@@ -13,6 +13,7 @@ public class FlightSimulator : MonoBehaviour
     private float pitch = 30.0f;
     private Rigidbody rb;
     private Bounds landBounds;
+    private float initDistance;
 
     // Start is called before the first frame update
     void Start() {
@@ -25,6 +26,8 @@ public class FlightSimulator : MonoBehaviour
 
         // Initial orientation
         this.transform.eulerAngles = new Vector3(pitch, yaw, 0.0f);
+
+        initDistance = Vector3.Distance(rb.position, landBounds.center);
     }
 
     // Update is called once per frame
@@ -48,22 +51,18 @@ public class FlightSimulator : MonoBehaviour
         this.transform.eulerAngles = new Vector3(pitch, yaw, 0.0f);
 
         // Prevent tunneling
-        RaycastHit hit;
-        Vector3 p1 = transform.position + landBounds.center;
-        if (Physics.SphereCast(p1, landBounds.size.y / 2, transform.forward, out hit, 10)) {
-            speed = 8.0f;
-        }
+        float delta = speed * Vector3.Distance(transform.position, landBounds.center) / initDistance;
 
         // Movement relative to the orientation
         float dx = 0.0f, dz = 0.0f;
         if (Input.GetKey(KeyCode.D))
-            dx += speed;
+            dx += delta;
         if (Input.GetKey(KeyCode.A))
-            dx -= speed;
+            dx -= delta;
         if (Input.GetKey(KeyCode.W))
-            dz += speed;
+            dz += delta;
         if (Input.GetKey(KeyCode.S))
-            dz -= speed;
+            dz -= delta;
 
         Vector3 p = this.transform.position + this.transform.rotation * new Vector3(dx, 0.0f, dz) * Time.deltaTime;
         rb.MovePosition(normalise(p.x, p.y, p.z));
