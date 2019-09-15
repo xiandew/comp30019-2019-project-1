@@ -130,14 +130,18 @@ public class Landscape : MonoBehaviour {
 
         land.RecalculateBounds();
         land.RecalculateNormals();
-
+        
+        // Define the colors for different areas of the landscape.
         Color[] color = new Color[numOfVerts];
         Color snow = new Color(206.0f / 255.0f, 211.0f / 255.0f, 217.0f / 255.0f);
         Color grass = new Color(126.0f / 255.0f, 200.0f / 255.0f, 80.0f /255.0f);
         Color sand = new Color(200.0f / 255.0f, 172.0f / 255.0f, 133.0f /255.0f);
 
+        // Based on the heights of the vertices, calculate the heights for snow
+        // area, grass area, sand area and water area.
         this.setHeights();
 
+        // Set the colors of the vertices according to its height.
         for (int i = 0; i < numOfVerts; i++){
             float vHeight = vertices[i].y;
             if (vHeight >= snowHeight) {

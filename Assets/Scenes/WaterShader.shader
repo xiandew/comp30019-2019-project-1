@@ -1,8 +1,4 @@
-﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
-// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
-Shader "Unlit/WaterShader"
+﻿Shader "Unlit/WaterShader"
 {
     Properties
     {
@@ -53,10 +49,6 @@ Shader "Unlit/WaterShader"
 				// Displacement of the water		
 				float4 displacement = _Amplitude * float4(0.0f, sin(v.vertex.x + _Time.y * _Speed), 0.0f, 0.0f);
 
-				// Convert Vertex position and corresponding normal into world coords.
-				// Note that we have to multiply the normal by the transposed inverse of the world 
-				// transformation matrix (for cases where we have non-uniform scaling; we also don't
-				// care about the "fourth" dimension, because translations don't affect the normal) 
 				float4 worldVertex = mul(unity_ObjectToWorld, v.vertex + displacement);
 				float3 worldNormal = normalize(mul(transpose((float3x3)unity_WorldToObject), v.normal.xyz + displacement.xyz));
 
@@ -99,12 +91,8 @@ Shader "Unlit/WaterShader"
 				float specN = 5; // Values>>1 give tighter highlights
 				float3 V = normalize(_WorldSpaceCameraPos - v.worldVertex.xyz);
 				// Using classic reflection calculation:
-				// float3 R = normalize((2.0 * LdotN * interpNormal) - L);
-				// float3 spe = fAtt * _SunLightColor.rgb * Ks * pow(saturate(dot(V, R)), specN);
-				// Using Blinn-Phong approximation:
-				specN = 25; // We usually need a higher specular power when using Blinn-Phong
-				float3 H = normalize(V + L);
-				float3 spe = fAtt * _SunLightColor.rgb * Ks * pow(saturate(dot(interpNormal, H)), specN);
+				float3 R = normalize((2.0 * LdotN * interpNormal) - L);
+				float3 spe = fAtt * _SunLightColor.rgb * Ks * pow(saturate(dot(V, R)), specN);
 
 				// Combine Phong illumination model components
 				float4 returnColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
