@@ -23,6 +23,9 @@ public class Water : MonoBehaviour
         MeshFilter waterMesh = this.gameObject.AddComponent<MeshFilter>();
         waterMesh.mesh = this.CreateWater();
 
+        MeshCollider collider = this.gameObject.AddComponent<MeshCollider>();
+        collider.sharedMesh = waterMesh.mesh;
+
         MeshRenderer renderer = this.gameObject.AddComponent<MeshRenderer>();
         renderer.material.shader = shader;       
     }
