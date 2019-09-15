@@ -11,12 +11,16 @@ public class Landscape : MonoBehaviour {
     // The size of the landscape in the x and z direction.
     public float size;
     public float height;
+    public Shader shader;
+    public Sun sun;
 
     Vector3[] vertices;
     int numOfVerts;
+    private float snowHeight;
+    private float grassHeight;
 
-    public Shader shader;
-    public Sun sun;
+    [HideInInspector]
+    public float waterLevel;    
 
     void Start() {
         MeshFilter landMesh = this.gameObject.AddComponent<MeshFilter>();
@@ -126,15 +130,18 @@ public class Landscape : MonoBehaviour {
 
         land.RecalculateBounds();
         land.RecalculateNormals();
-
+        
+        // Define the colors for different areas of the landscape.
         Color[] color = new Color[numOfVerts];
         Color snow = new Color(206.0f / 255.0f, 211.0f / 255.0f, 217.0f / 255.0f);
         Color grass = new Color(126.0f / 255.0f, 200.0f / 255.0f, 80.0f /255.0f);
         Color sand = new Color(200.0f / 255.0f, 172.0f / 255.0f, 133.0f /255.0f);
 
-        float snowHeight = height / 2;
-        float grassHeight = height / 5;
+        // Based on the heights of the vertices, calculate the heights for snow
+        // area, grass area, sand area and water area.
+        this.setHeights();
 
+        // Set the colors of the vertices according to its height.
         for (int i = 0; i < numOfVerts; i++){
             float vHeight = vertices[i].y;
             if (vHeight >= snowHeight) {
@@ -172,6 +179,24 @@ public class Landscape : MonoBehaviour {
                                       vertices[mid].y) / 3 + Random.Range(-offset, offset);
         vertices[botLeft + halfSize].y = (vertices[botLeft].y + vertices[botLeft + squareSize].y + 
                                           vertices[mid].y) / 3 + Random.Range(-offset, offset);
+    }
+
+    void setHeights() {
+        float maxHeight = 0.0f;
+        float minHeight = 0.0f;
+
+        for (int i = 0; i < numOfVerts; i++) {
+            float vHeight = vertices[i].y;
+            if (vHeight > maxHeight) {
+                maxHeight = vHeight;
+            } else if (vHeight < minHeight) {
+                minHeight = vHeight;
+            }
+        }
+
+        snowHeight  = minHeight + (maxHeight - minHeight) * 0.8f;
+        grassHeight = minHeight + (maxHeight - minHeight) * 0.6f;
+        waterLevel  = minHeight + (maxHeight - minHeight) * 0.5f;
     }
 
 }

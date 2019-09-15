@@ -13,12 +13,14 @@ public class Water : MonoBehaviour
     private int numDivisions;
     private Vector3[] vertices;
     private int numOfVerts;
+    private float waterLevel;
 
     // Start is called before the first frame update
     void Start()
     {
         this.size = landscape.size;
         this.numDivisions = landscape.numDivisions;
+        this.waterLevel = landscape.waterLevel;
 
         MeshFilter waterMesh = this.gameObject.AddComponent<MeshFilter>();
         waterMesh.mesh = this.CreateWater();
@@ -58,7 +60,7 @@ public class Water : MonoBehaviour
         // Generate all the verticies for the water
         for (int z= 0; z <= numDivisions; z++) {
             for (int x = 0; x <= numDivisions; x++) {
-                vertices[z * (numDivisions + 1) + x] = new Vector3(-halfSize + x * divisionSize, 0.0f, halfSize - z * divisionSize);
+                vertices[z * (numDivisions + 1) + x] = new Vector3(-halfSize + x * divisionSize, waterLevel, halfSize - z * divisionSize);
                 uvs[z * (numDivisions + 1) + x] = new Vector2((float) x / numDivisions, (float) z / numDivisions);
 
                 // Generate the triangles for the corresponding vertex
@@ -92,9 +94,6 @@ public class Water : MonoBehaviour
         water.uv = uvs;
         water.triangles = triangles;
         water.colors = color;
-
-        water.RecalculateBounds();
-        water.RecalculateNormals();
 
         return water;
     }
