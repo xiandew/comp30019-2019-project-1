@@ -1,4 +1,8 @@
-﻿using UnityEngine;
+﻿/** The implementation of the Diamond Square Algorithm is mainly based on a
+    YouTube video with the link: https://www.youtube.com/watch?v=1HV8GbFnCik
+ */
+
+using UnityEngine;
 
 public class Landscape : MonoBehaviour {
 

@@ -224,7 +224,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61e68513fc57e1f4b965f08bd7f0504a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  raiseSpeed: 20
+  raiseSpeed: 5
   color: {r: 1, g: 0.99607843, b: 0.98039216, a: 1}
 --- !u!1 &835658595
 GameObject:
