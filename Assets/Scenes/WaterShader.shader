@@ -9,6 +9,8 @@ Shader "Unlit/WaterShader"
         _MainTex ("Texture", 2D) = "white" {}
         _SunLightColor("Sun Light Color", Color) = (0, 0, 0)
 		_SunLightPosition("Sun Light Position", Vector) = (0.0, 0.0, 0.0)
+		_Amplitude("Amplitude", Range(0.0, 2.0)) = 0.05
+		_Speed("Speed", float) = 2.0
     }
     SubShader
     {
@@ -25,6 +27,8 @@ Shader "Unlit/WaterShader"
 
 			uniform float3 _SunLightColor;
 			uniform float3 _SunLightPosition;
+			uniform float _Amplitude;
+			uniform float _Speed;
 
 			struct vertIn
 			{
@@ -46,17 +50,15 @@ Shader "Unlit/WaterShader"
 			{
 				vertOut o;
 
-				// Displacement of the water
-				float speed = 1.0f;
-				float amp = 0.2f;			
-				float4 displacement = float4(0.0f, sin(v.vertex.x + _Time.y * speed) * amp, 0.0f, 0.0f);
+				// Displacement of the water		
+				float4 displacement = _Amplitude * float4(0.0f, sin(v.vertex.x + _Time.y * _Speed), 0.0f, 0.0f);
 
 				// Convert Vertex position and corresponding normal into world coords.
 				// Note that we have to multiply the normal by the transposed inverse of the world 
 				// transformation matrix (for cases where we have non-uniform scaling; we also don't
 				// care about the "fourth" dimension, because translations don't affect the normal) 
 				float4 worldVertex = mul(unity_ObjectToWorld, v.vertex + displacement);
-				float3 worldNormal = normalize(mul(transpose((float3x3)unity_WorldToObject), v.normal.xyz));
+				float3 worldNormal = normalize(mul(transpose((float3x3)unity_WorldToObject), v.normal.xyz + displacement.xyz));
 
 				v.vertex = mul(UNITY_MATRIX_MV, v.vertex);
 				v.vertex += displacement;
@@ -93,16 +95,16 @@ Shader "Unlit/WaterShader"
 				float3 dif = fAtt * _SunLightColor.rgb * Kd * v.color.rgb * saturate(LdotN);
 
 				// Calculate specular reflections
-				float Ks = 0.5;
-				float specN = 30; // Values>>1 give tighter highlights
+				float Ks = 1;
+				float specN = 5; // Values>>1 give tighter highlights
 				float3 V = normalize(_WorldSpaceCameraPos - v.worldVertex.xyz);
 				// Using classic reflection calculation:
-				float3 R = normalize((2.0 * LdotN * interpNormal) - L);
-				float3 spe = fAtt * _SunLightColor.rgb * Ks * pow(saturate(dot(V, R)), specN);
+				// float3 R = normalize((2.0 * LdotN * interpNormal) - L);
+				// float3 spe = fAtt * _SunLightColor.rgb * Ks * pow(saturate(dot(V, R)), specN);
 				// Using Blinn-Phong approximation:
-				// specN = 25; // We usually need a higher specular power when using Blinn-Phong
-				// float3 H = normalize(V + L);
-				// float3 spe = fAtt * _SunLightColor.rgb * Ks * pow(saturate(dot(interpNormal, H)), specN);
+				specN = 25; // We usually need a higher specular power when using Blinn-Phong
+				float3 H = normalize(V + L);
+				float3 spe = fAtt * _SunLightColor.rgb * Ks * pow(saturate(dot(interpNormal, H)), specN);
 
 				// Combine Phong illumination model components
 				float4 returnColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
